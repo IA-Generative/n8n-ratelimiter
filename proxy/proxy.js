@@ -10,6 +10,18 @@ const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const server = createServer((clientSocket) => {
   console.log(`[${new Date().toISOString()}] Client connected from ${clientSocket.remoteAddress}:${clientSocket.remotePort}`);
 
+  let redisSocket = null;
+  let isConnectedToRedis = false;
+  let pendingData = [];
+
+  // Timeout pour fermer les connexions inactives (probes K8s)
+  const inactivityTimeout = setTimeout(() => {
+    if (!isConnectedToRedis) {
+      console.log(`[${new Date().toISOString()}] Closing inactive connection (likely health probe)`);
+      clientSocket.destroy();
+    }
+  }, 2000); // 2 secondes pour les probes
+
   // Create RESP parser for incoming commands
   const parser = new Parser({
     returnReply: (reply) => {
@@ -21,7 +33,7 @@ const server = createServer((clientSocket) => {
           if (command === 'AUTH' && reply.indexOf(arg) === 1) {
             return '***';
           }
-          return str.length > 50 ? str.substring(0, 50) + '...' : str;
+          return str;
         });
         
         console.log(`[${new Date().toISOString()}] Command: ${command} ${args.join(' ')}`);
@@ -32,50 +44,73 @@ const server = createServer((clientSocket) => {
     }
   });
 
-  // Connect to Redis server
-  const redisSocket = createConnection({
-    host: REDIS_HOST,
-    port: REDIS_PORT
-  }, () => {
-    console.log(`[${new Date().toISOString()}] Connected to Valkey at ${REDIS_HOST}:${REDIS_PORT}`);
-  });
+  // Fonction pour se connecter à Valkey (lazy connection)
+  const connectToRedis = () => {
+    if (redisSocket) return;
+    
+    redisSocket = createConnection({
+      host: REDIS_HOST,
+      port: REDIS_PORT
+    }, () => {
+      console.log(`[${new Date().toISOString()}] Connected to Valkey at ${REDIS_HOST}:${REDIS_PORT}`);
+      isConnectedToRedis = true;
+      
+      // Envoyer les données en attente
+      while (pendingData.length > 0) {
+        const data = pendingData.shift();
+        redisSocket.write(data);
+      }
+    });
+
+    // Passthrough: Redis -> Client
+    redisSocket.on('data', (data) => {
+      clientSocket.write(data);
+    });
+
+    // Handle Redis disconnection
+    redisSocket.on('end', () => {
+      console.log(`[${new Date().toISOString()}] Redis connection closed`);
+      clientSocket.end();
+    });
+
+    redisSocket.on('error', (err) => {
+      console.error(`[${new Date().toISOString()}] Redis error:`, err.message);
+      clientSocket.end();
+    });
+  };
 
   // Passthrough: Client -> Redis (including AUTH commands)
   clientSocket.on('data', (data) => {
+    // Annuler le timeout d'inactivité car on a reçu des données
+    clearTimeout(inactivityTimeout);
+    
     try {
       // Parse les commandes pour logging
       parser.execute(data);
-    } finally {
-      // Forward les données sans modification
+    } catch (e) {
+      // Ignore parsing errors
+    }
+    
+    // Se connecter à Redis seulement si on reçoit des données
+    if (!redisSocket) {
+      connectToRedis();
+      pendingData.push(data);
+    } else {
       redisSocket.write(data);
     }
   });
 
-  // Passthrough: Redis -> Client
-  redisSocket.on('data', (data) => {
-    clientSocket.write(data);
-  });
-
   // Handle client disconnection
   clientSocket.on('end', () => {
+    clearTimeout(inactivityTimeout);
     console.log(`[${new Date().toISOString()}] Client disconnected`);
-    redisSocket.end();
+    if (redisSocket) redisSocket.end();
   });
 
   clientSocket.on('error', (err) => {
+    clearTimeout(inactivityTimeout);
     console.error(`[${new Date().toISOString()}] Client error:`, err.message);
-    redisSocket.end();
-  });
-
-  // Handle Redis disconnection
-  redisSocket.on('end', () => {
-    console.log(`[${new Date().toISOString()}] Redis connection closed`);
-    clientSocket.end();
-  });
-
-  redisSocket.on('error', (err) => {
-    console.error(`[${new Date().toISOString()}] Redis error:`, err.message);
-    clientSocket.end();
+    if (redisSocket) redisSocket.end();
   });
 });
 
