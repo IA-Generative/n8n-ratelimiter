@@ -1,5 +1,8 @@
 # Valkey Reverse Proxy
 
+[![CI/CD](https://github.com/IA-Generative/n8n-ratelimiter/actions/workflows/ci.yml/badge.svg)](https://github.com/IA-Generative/n8n-ratelimiter/actions/workflows/ci.yml)
+[![Release](https://github.com/IA-Generative/n8n-ratelimiter/actions/workflows/release-please.yml/badge.svg)](https://github.com/IA-Generative/n8n-ratelimiter/actions/workflows/release-please.yml)
+
 A simple TCP reverse proxy for Valkey (Redis-compatible) that passes through all requests transparently.
 
 ## Features
@@ -106,6 +109,30 @@ const client = redis.createClient({
 ```
 
 ## Docker Setup
+
+### Using Docker Images from GitHub Container Registry
+
+Pull and run the pre-built images:
+
+```bash
+docker pull ghcr.io/ia-generative/valkey-proxy:latest
+docker pull ghcr.io/ia-generative/valkey-client:latest
+```
+
+Or use in your own docker-compose:
+
+```yaml
+services:
+  valkey-proxy:
+    image: ghcr.io/ia-generative/valkey-proxy:latest
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_HOST=your-valkey-host
+      - REDIS_PORT=6379
+```
+
+### Using Docker Compose (Development)
 
 ### Using Docker Compose (Recommended)
 
