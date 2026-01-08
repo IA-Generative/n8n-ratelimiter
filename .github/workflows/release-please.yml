@@ -26,11 +26,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
-    strategy:
-      matrix:
-        service: [proxy]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,7 +44,7 @@ jobs:
       - name: Build and push release images
         uses: docker/build-push-action@v5
         with:
-          context: ./${{ matrix.service }}
+          context: ./proxy
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/n8n-ratelimiter:${{ needs.release-please.outputs.tag_name }}

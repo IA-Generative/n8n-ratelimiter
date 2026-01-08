@@ -14,11 +14,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
-    strategy:
-      matrix:
-        service: [proxy]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,7 +40,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./${{ matrix.service }}
+          context: ./proxy
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
