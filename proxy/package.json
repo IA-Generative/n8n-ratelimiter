@@ -1,0 +1,23 @@
+{
+    "name": "redis-proxy",
+    "version": "1.0.0",
+    "description": "Redis reverse proxy",
+    "main": "proxy.js",
+    "type": "module",
+    "scripts": {
+        "start": "node proxy.js",
+        "dev": "nodemon proxy.js"
+    },
+    "keywords": [
+        "redis",
+        "proxy"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "redis-parser": "^3.0.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.2"
+    }
+}
