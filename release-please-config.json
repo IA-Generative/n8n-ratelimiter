@@ -2,7 +2,7 @@
     "packages": {
         ".": {
             "release-type": "simple",
-            "package-name": "valkey-proxy",
+            "package-name": "n8n-ratelimiter",
             "bump-minor-pre-major": true,
             "bump-patch-for-minor-pre-major": false,
             "changelog-sections": [

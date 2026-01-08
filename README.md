@@ -115,8 +115,7 @@ const client = redis.createClient({
 Pull and run the pre-built images:
 
 ```bash
-docker pull ghcr.io/ia-generative/valkey-proxy:latest
-docker pull ghcr.io/ia-generative/valkey-client:latest
+docker pull ghcr.io/ia-generative/n8n-ratelimiter:latest
 ```
 
 Or use in your own docker-compose:
@@ -124,7 +123,7 @@ Or use in your own docker-compose:
 ```yaml
 services:
   valkey-proxy:
-    image: ghcr.io/ia-generative/valkey-proxy:latest
+    image: ghcr.io/ia-generative/n8n-ratelimiter:latest
     ports:
       - "6379:6379"
     environment:

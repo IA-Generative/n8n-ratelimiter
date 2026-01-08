@@ -42,7 +42,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/valkey-${{ matrix.service }}
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/n8n-ratelimiter
           tags: |
             type=ref,event=branch
             type=ref,event=pr,prefix=pr-
