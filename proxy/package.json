@@ -5,8 +5,11 @@
     "main": "proxy.js",
     "type": "module",
     "scripts": {
-        "start": "node proxy.js",
-        "dev": "nodemon proxy.js"
+        "start": "vite-node src/proxy.ts",
+        "dev": "vite-node --watch src/proxy.ts",
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix"
     },
     "keywords": [
         "redis",
@@ -15,9 +18,13 @@
     "author": "",
     "license": "MIT",
     "dependencies": {
+        "@types/redis-parser": "^3.0.3",
         "redis-parser": "^3.0.0"
     },
     "devDependencies": {
-        "nodemon": "^3.0.2"
+        "@types/node": "^22.10.2",
+        "typescript": "^5.7.2",
+        "vite": "^6.0.5",
+        "vite-node": "^2.1.8"
     }
 }
