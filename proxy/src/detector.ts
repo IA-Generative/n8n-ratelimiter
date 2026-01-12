@@ -2,20 +2,16 @@ import type { ExtractedJson } from './extract'
 import { ExtractedJsonNumber, ExtractedJsonObject } from './extract'
 import { modifyDataObject } from './modifier'
 
-function stringsToBuffer(strings: string[]): Buffer {
-  return Buffer.from(strings.join('\r\n'), 'ascii')
-}
-
 interface Objects {
   dataObj: ExtractedJsonObject | undefined
   optionsObj: ExtractedJsonObject | undefined
   priorityObj: ExtractedJsonNumber | undefined
 }
 
-function manageLine(acc: Objects, str: string, index: number): Objects {
+function manageLine(acc: Objects, bufLine: Buffer, index: number): Objects {
   try {
-    if (str.includes('{')) {
-      const extracted = extractJson(str)
+    if (bufLine.includes(Buffer.from('{'))) {
+      const extracted = extractJson(bufLine)
       if (!extracted)
         return acc
       const value = extracted.getValue()
@@ -29,13 +25,10 @@ function manageLine(acc: Objects, str: string, index: number): Objects {
       }
       return acc
     }
-  }
-  catch (_: unknown) {
-  }
-  try {
-    const num = Number(str)
+
+    const num = Number(bufLine)
     if (!Number.isNaN(num) && Number.isInteger(num) && num === acc.optionsObj?.getValue().priority) {
-      const extracted = extractJson(str)
+      const extracted = extractJson(bufLine)
       if (!extracted)
         return acc
       extracted.setIndex(index)
@@ -47,58 +40,45 @@ function manageLine(acc: Objects, str: string, index: number): Objects {
   return acc
 }
 
-export function detectEvalCommand(strings: string[]): Buffer {
-  console.warn(strings[1])
-  if (!strings.some(str => str.toLocaleLowerCase() === 'eval')) {
-    console.warn('Not an EVAL command, forwarding as is.')
-    return stringsToBuffer(strings)
+export function detectEvalCommand(buffers: Buffer[]): Buffer[] {
+  if (!buffers.some(buf => buf.toString('utf-8').toLocaleLowerCase().startsWith('eval'))) {
+    return buffers
   }
-  const { dataObj, optionsObj, priorityObj } = strings.reduce(manageLine, ({ dataObj: undefined, optionsObj: undefined, priorityObj: undefined } as Objects))
-  if (!dataObj) {
-    return stringsToBuffer(strings)
-  }
-  if (!optionsObj) {
-    return stringsToBuffer(strings)
-  }
-  if (!priorityObj) {
-    return stringsToBuffer(strings)
+  const { dataObj, optionsObj, priorityObj } = buffers.reduce(manageLine, ({
+    dataObj: undefined,
+    optionsObj: undefined,
+    priorityObj: undefined,
+  } as Objects))
+
+  if (!dataObj || !optionsObj || !priorityObj) {
+    return buffers
   }
   const modified = modifyDataObject(dataObj, optionsObj, priorityObj)
-  const newStrings = strings.map((str, index) => {
-    const mod = modified.find(m => m.index === index)
-    if (mod) {
-      return mod.toBuffer().toString('ascii')
-    }
-    return str
+  modified.forEach((mod) => {
+    console.warn('Modified:', mod.toBuffer().toString('utf-8'))
+    buffers[mod.index] = mod.toBuffer()
   })
-  for (const mod of modified) {
-    newStrings[mod.index] = mod.toBuffer().toString('ascii')
-    console.warn({
-      index: mod.index,
-      newValue: mod.toBuffer().toString('ascii'),
-      oldValue: strings[mod.index],
-    })
-  }
-  return stringsToBuffer(newStrings)
+
+  return buffers
 }
 
-function extractJson(str: string): ExtractedJson | null {
-  const jsonStart = str.indexOf('{')
-  const jsonEnd = str.lastIndexOf('}')
+function extractJson(bufLine: Buffer): ExtractedJson | null {
+  const jsonStart = bufLine.indexOf('{')
+  const jsonEnd = bufLine.lastIndexOf('}')
   if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-    const jsonString = str.slice(jsonStart, jsonEnd + 1)
+    const jsonString = bufLine.slice(jsonStart, jsonEnd + 1)
     try {
       // return {object: JSON.parse(jsonString), startStr: str.substring(0, jsonStart), endStr: str.substring(jsonEnd + 1)};
-      return new ExtractedJsonObject(str.slice(0, jsonStart), str.slice(jsonEnd + 1), jsonString)
+      return new ExtractedJsonObject(bufLine.slice(0, jsonStart), bufLine.slice(jsonEnd + 1), jsonString.toString('utf-8'))
     }
     catch (_: unknown) {
       return null
     }
   }
   try {
-    const num = Number(str)
+    const num = Number(bufLine.toString('ascii'))
     if (!Number.isNaN(num)) {
-      return new ExtractedJsonNumber('', '', str)
+      return new ExtractedJsonNumber(Buffer.alloc(0), Buffer.alloc(0), bufLine.toString('ascii'))
     }
   }
   catch (_: unknown) {

@@ -1,13 +1,13 @@
 export class ExtractedJson {
-  startStr: string
-  endStr: string
+  startBuf: Buffer
+  endBuf: Buffer
   objectStr: string
   value: any
   index: number
 
-  constructor(startStr: string, endStr: string, objectStr: string) {
-    this.startStr = startStr
-    this.endStr = endStr
+  constructor(startBuf: Buffer, endBuf: Buffer, objectStr: string) {
+    this.startBuf = startBuf
+    this.endBuf = endBuf
     this.objectStr = objectStr
     this.value = JSON.parse(objectStr)
     this.index = -1
@@ -18,8 +18,7 @@ export class ExtractedJson {
   }
 
   toBuffer(): Buffer {
-    const fullString = this.startStr + this.objectStr + this.endStr
-    return Buffer.from(fullString, 'ascii')
+    return Buffer.concat([this.startBuf, Buffer.from(this.objectStr, 'ascii'), this.endBuf])
   }
 
   getValue(): any {
@@ -35,8 +34,8 @@ export class ExtractedJson {
 export class ExtractedJsonObject extends ExtractedJson {
   value: Record<string, any>
 
-  constructor(startStr: string, endStr: string, objectStr: string) {
-    super(startStr, endStr, objectStr)
+  constructor(startBuf: Buffer, endBuf: Buffer, objectStr: string) {
+    super(startBuf, endBuf, objectStr)
     this.value = JSON.parse(objectStr) as Record<string, any>
   }
 
@@ -48,8 +47,8 @@ export class ExtractedJsonObject extends ExtractedJson {
 export class ExtractedJsonNumber extends ExtractedJson {
   value: number
 
-  constructor(startStr: string, endStr: string, objectStr: string) {
-    super(startStr, endStr, objectStr)
+  constructor(startBuf: Buffer, endBuf: Buffer, objectStr: string) {
+    super(startBuf, endBuf, objectStr)
     this.value = JSON.parse(objectStr) as number
   }
 

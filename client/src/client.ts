@@ -38,7 +38,7 @@ const operations = [
     }
 
     const jobOptions = {
-      priority: Math.floor(100 + (i++ % 100)),
+      priority: Math.floor(100 + (++i % 100)),
       removeOnComplete: true,
       removeOnFail: true,
     }

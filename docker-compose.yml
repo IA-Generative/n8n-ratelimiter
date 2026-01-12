@@ -17,6 +17,7 @@ services:
 
   valkey-proxy:
     build: ./proxy
+    # image: ghcr.io/ia-generative/n8n-ratelimiter:pr-7
     container_name: valkey-proxy
     ports:
       - "6379:6379"

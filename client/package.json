@@ -1,31 +1,31 @@
 {
-    "name": "redis-client",
-    "version": "1.0.0",
-    "description": "Redis load testing client",
-    "main": "dist/client.js",
-    "type": "module",
-    "scripts": {
-        "start": "vite-node src/client.ts",
-        "dev": "vite-node --watch src/client.ts",
-        "typecheck": "tsc --noEmit",
-        "lint": "eslint .",
-        "lint:fix": "eslint . --fix"
-    },
-    "keywords": [
-        "redis",
-        "client",
-        "load-test"
-    ],
-    "author": "",
-    "license": "MIT",
-    "dependencies": {
-        "bull": "^4.16.4"
-    },
-    "devDependencies": {
-        "@types/bull": "^4.10.0",
-        "@types/node": "^22.10.2",
-        "typescript": "^5.7.2",
-        "vite": "^6.0.5",
-        "vite-node": "^2.1.8"
-    }
+  "name": "redis-client",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Redis load testing client",
+  "author": "",
+  "license": "MIT",
+  "keywords": [
+    "redis",
+    "client",
+    "load-test"
+  ],
+  "main": "dist/client.js",
+  "scripts": {
+    "start": "vite-node src/client.ts",
+    "dev": "vite-node --watch src/client.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "bull": "^4.16.4"
+  },
+  "devDependencies": {
+    "@types/bull": "^4.10.0",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "vite-node": "^2.1.8"
+  }
 }

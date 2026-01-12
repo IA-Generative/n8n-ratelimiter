@@ -12,6 +12,8 @@ const REDIS_PORT = +(process.env.REDIS_PORT as string) || 6379
 const server = createServer((clientSocket) => {
   console.warn(`[${new Date().toISOString()}] Client connected from ${clientSocket.remoteAddress}:${clientSocket.remotePort}`)
 
+  let dataBuffer = Buffer.alloc(0)
+
   // Connect to Redis server
   const redisSocket = createConnection({
     host: REDIS_HOST,
@@ -22,16 +24,35 @@ const server = createServer((clientSocket) => {
 
   // Passthrough: Client -> Redis (including AUTH commands)
   clientSocket.on('data', (data) => {
-    const editedData = parseBuffer(data)
+    // Accumulate data in buffer
+    dataBuffer = Buffer.concat([dataBuffer, data])
 
-    // // Log input data as hex
-    // appendFileSync('inputs', `${data.toString('hex')}\n${'='.repeat(80)}\n`)
+    // Try to parse complete commands from buffer
+    const dataStr = dataBuffer.toString('utf8')
 
-    // // Log output data as hex
-    // appendFileSync('outputs', `${editedData.toString('hex')}\n${'='.repeat(80)}\n`)
+    // Check if we have a complete Redis command (ends with \r\n)
+    if (!dataStr.endsWith('\r\n')) {
+      // Incomplete command, wait for more data
+      console.warn('Incomplete command, waiting for more data')
+      return
+    }
 
-    // Forward les données sans modification
+    // Process the complete buffer
+    const editedData = parseBuffer(dataBuffer)
+
+    if (process.env.DUMP_DATA === 'true') {
+      // Log input data as hex
+      appendFileSync('inputs', `${dataBuffer.toString('hex')}\n`)
+
+      // Log output data as hex
+      appendFileSync('outputs', `${editedData.toString('hex')}\n`)
+    }
+
+    // Forward the data
     redisSocket.write(editedData)
+
+    // Clear the buffer after processing
+    dataBuffer = Buffer.alloc(0)
   })
 
   // Passthrough: Redis -> Client

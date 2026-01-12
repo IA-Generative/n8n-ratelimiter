@@ -8,6 +8,7 @@ export default antfu({
     overrides: {
       "n/prefer-global/buffer": ["error", "always"],
       "no-console": "off",
+      "unused-imports/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     },
   },
   typescript: true,

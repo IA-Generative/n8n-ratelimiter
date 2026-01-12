@@ -6,13 +6,12 @@ export function modifyDataObject(
   priorityObj: ExtractedJsonNumber,
 ): ExtractedJson[] {
   // decrease priority by 20
-  const currentPriority = priorityObj.getValue()
-  const newPriority = Math.max(0, currentPriority + 100)
-  priorityObj.setValue(newPriority)
+  // const currentPriority = priorityObj.getValue()
+  // const newPriority = Math.max(0, currentPriority + 100)
 
-  const currentOpts = optionsObj.getValue()
+  // const currentOpts = optionsObj.getValue()
 
-  currentOpts.priority = newPriority
-  optionsObj.setValue(currentOpts)
+  // currentOpts.priority = newPriority
+  // optionsObj.setValue(currentOpts)
   return [dataObj, optionsObj, priorityObj]
 }

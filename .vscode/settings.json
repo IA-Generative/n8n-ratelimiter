@@ -1,7 +1,7 @@
 {
   // Enable ESLint flat config support
-  "eslint.experimental.useFlatConfig": true,
-  
+  "eslint.useFlatConfig": true,
+
   // Enable ESLint for all supported languages
   "eslint.validate": [
     "javascript",
@@ -43,7 +43,7 @@
   // Editor
   "editor.formatOnSave": false,
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-  
+
   // Files
   "files.eol": "\n",
   "files.associations": {
