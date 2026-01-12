@@ -20,14 +20,16 @@ services:
     # image: ghcr.io/ia-generative/n8n-ratelimiter:pr-7
     container_name: valkey-proxy
     ports:
-      - "6379:6379"
+      - 6379:6379
+      - 9090:9090
     environment:
       - PROXY_PORT=6379
       - REDIS_HOST=valkey
       - REDIS_PORT=6379
+      - REDIS_PASSWORD=${VALKEY_PASSWORD:-valkeypass123}
     volumes:
       - ./proxy:/app
-      - /app/node_modules
+      - node_modules:/app/node_modules
     depends_on:
       valkey:
         condition: service_healthy
@@ -41,7 +43,7 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${VALKEY_PASSWORD:-valkeypass123}
       - OPS_PER_MINUTE=240
-      - DURATION_SECONDS=10
+      - DURATION_SECONDS=100
     volumes:
       - ./client:/app
       - /app/node_modules
@@ -63,3 +65,4 @@ services:
 volumes:
   valkey-data:
   redis-insight-data:
+  node_modules:
