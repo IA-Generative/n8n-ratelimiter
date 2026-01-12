@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.0](https://github.com/IA-Generative/n8n-ratelimiter/compare/v0.0.1...v0.1.0) (2026-01-12)
+
+
+### Features
+
+* **client:** add Redis load testing client with random operations and statistics logging ([bf74af5](https://github.com/IA-Generative/n8n-ratelimiter/commit/bf74af5898aa657b4c524b71bb5a2692f4d805ce))
+* **proxy:** enhance buffer handling and command parsing in Redis proxy ([37a5c8f](https://github.com/IA-Generative/n8n-ratelimiter/commit/37a5c8fe12d8584eb32efdac4e05eee1177cfbcc))
+* **proxy:** implement lazy connection to Redis and handle inactive client connections ([ff317b6](https://github.com/IA-Generative/n8n-ratelimiter/commit/ff317b6cec9c10fe09025e72f7a7662d44a1e22a))
+* **proxy:** implement Redis reverse proxy with command logging and passthrough functionality ([bf74af5](https://github.com/IA-Generative/n8n-ratelimiter/commit/bf74af5898aa657b4c524b71bb5a2692f4d805ce))
+
 ## 1.0.0 (2026-01-08)
 
 
