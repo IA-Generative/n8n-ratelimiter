@@ -17,6 +17,7 @@ services:
 
   valkey-proxy:
     build: ./proxy
+    # image: ghcr.io/ia-generative/n8n-ratelimiter:pr-7
     container_name: valkey-proxy
     ports:
       - "6379:6379"
@@ -39,8 +40,8 @@ services:
       - REDIS_HOST=valkey-proxy
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${VALKEY_PASSWORD:-valkeypass123}
-      - OPS_PER_MINUTE=10
-      - DURATION_SECONDS=600
+      - OPS_PER_MINUTE=240
+      - DURATION_SECONDS=10
     volumes:
       - ./client:/app
       - /app/node_modules
