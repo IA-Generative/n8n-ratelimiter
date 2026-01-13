@@ -4,7 +4,8 @@ import Bull from 'bull'
 // Configuration
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost'
 const REDIS_PORT = process.env.REDIS_PORT || 6379 // Connect to proxy by default
-const OPERATIONS_PER_MINUTE = Number.parseInt(process.env.OPS_PER_MINUTE as string) || 10
+// const OPERATIONS_PER_MINUTE = Number.parseInt(process.env.OPS_PER_MINUTE as string) || 10
+const OPERATIONS_PER_MINUTE = 10
 const DURATION_SECONDS = Number.parseInt(process.env.DURATION_SECONDS as string) || 60
 const JOB_QUEUE_NAME = 'COUCOU'
 // Redis connection configuration for Bull
